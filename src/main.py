@@ -5,6 +5,7 @@ import os
 from datetime import datetime
 from game.modes.classic import Classic
 from players.human import HumanPlayer
+from players.ai import AIPlayer
 from utils.logger import setup_logger
 from utils.tree import generate_tree
 from utils.visualization import visualize_game_tree
@@ -20,6 +21,8 @@ def parse_arguments():
 def create_player(player_type, name):
     if player_type == "human":
         return HumanPlayer(name)
+    elif player_type == "ai":
+        return AIPlayer(name)
     else:
         raise ValueError(f"Invalid player type: {player_type}")
 
