@@ -6,7 +6,7 @@ from graphviz import Digraph
 
 def visualize_game_tree(root):
     dot = Digraph()
-    dot.node('root', 'Initial State')
+    dot.node('root', 'Game Tree', shape='box')
 
     def add_nodes_and_edges(nodes, parent_name):
         for node in nodes:
@@ -15,7 +15,8 @@ def visualize_game_tree(root):
             if node.move is not None:
                 move_info = f"Move: Pile {node.move[0] + 1}, Take {node.move[1]} objects"
             else:
-                move_info = "No Move"
+                player_turn = "Initial State"
+                move_info = "Start"
             node_label = f"{player_turn}\n{move_info}"
             if not node.children:
                 winner = get_winner(node.player)

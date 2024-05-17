@@ -1,7 +1,9 @@
 # src/main.py
 
-import argparse
 import os
+import yaml
+import argparse
+import threading
 from datetime import datetime
 from game.modes.classic import Classic
 from players.human import HumanPlayer
@@ -10,12 +12,33 @@ from utils.logger import setup_logger
 from utils.tree import generate_tree
 from utils.visualization import visualize_game_tree
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Play the Nim game.")
+    parser.add_argument("--config", "-c", type=str, default="config.yaml", help="Configuration file")
+    args, _ = parser.parse_known_args()
+
+    if args.config:
+        return args
+    
+    parser.add_argument("--debug", "-d", action="store_true", help="Enable debug mode")
     parser.add_argument("--mode", "-m", type=str, default="classic", help="Game mode: classic")
     parser.add_argument("--player1", "-p1", type=str, default="human", help="Player 1 type: human, ai")
     parser.add_argument("--player2", "-p2", type=str, default="ai", help="Player 2 type: human, ai")
+    parser.add_argument("--num_piles", "-n", type=int, default=None, help="Number of piles")
     return parser.parse_args()
+
+
+def load_config(config_file):
+    with open(config_file, "r") as file:
+        config = yaml.safe_load(file)
+    
+    # Set default values if not provided in the config file
+    config.setdefault("mode", "classic")
+    config.setdefault("player1", "human")
+    config.setdefault("player2", "ai")
+    config.setdefault("num_piles", None)
+    return config
 
 
 def create_player(player_type, name):
@@ -30,18 +53,43 @@ def create_player(player_type, name):
 def main():
     args = parse_arguments()
 
-    if args.mode != "classic":
-        raise ValueError(f"Invalid game mode: {args.mode}")
+    if args.config:
+        config = load_config(args.config)
+
+    if config:
+        debug = config.get("debug")
+        mode = config.get("mode")
+        player1 = config.get("player1")
+        player2 = config.get("player2")
+        num_piles = config.get("num_piles")
+    else:
+        debug = args.debug
+        mode = args.mode
+        player1 = args.player1
+        player2 = args.player2
+        num_piles = args.num_piles
+
+    if mode != "classic":
+        raise ValueError(f"Invalid game mode: {mode}")
     
-    game = Classic()
+    game = Classic(num_piles)
 
     initial_piles = game.get_piles()
 
-    root = generate_tree(initial_piles)
-    visualize_game_tree(root)
+    # Define a function to run in a thread
+    def background_task():
+        root = generate_tree(initial_piles)
+        visualize_game_tree(root)
 
-    player1 = create_player(args.player1, "Player 1")
-    player2 = create_player(args.player2, "Player 2")
+    if debug == True:
+        # Create a thread for the background task
+        background_thread = threading.Thread(target=background_task)
+        
+        # Start the background thread
+        background_thread.start()
+
+    player1 = create_player(player1, "Player 1")
+    player2 = create_player(player2, "Player 2")
 
 
     log_dir = ".logs"
@@ -49,7 +97,7 @@ def main():
 
     current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    log_file = os.path.join(log_dir, f"nim_game_{args.mode}_{current_datetime}.log")
+    log_file = os.path.join(log_dir, f"nim_game_{mode}_{current_datetime}.log")
     logger = setup_logger("nim_game", log_file)
     
     player1.set_logger(logger)
