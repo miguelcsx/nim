@@ -2,13 +2,14 @@
 
 import os
 from graphviz import Digraph
+from utils.tree import TreeNode
 
 
-def visualize_game_tree(root):
+def visualize_game_tree(root: TreeNode) -> None:
     dot = Digraph()
     dot.node('root', 'Game Tree', shape='box')
 
-    def add_nodes_and_edges(nodes, parent_name):
+    def add_nodes_and_edges(nodes: list[TreeNode], parent_name: str) -> None:
         for node in nodes:
             node_name = f"node_{id(node)}"
             player_turn = f"Player's Turn: {node.player}"
@@ -35,7 +36,7 @@ def visualize_game_tree(root):
         f.write(svg_bytes)
 
 
-def get_winner(player):
+def get_winner(player: str) -> str:
     if player == "Player 1":
         return "Player 2"
     else:

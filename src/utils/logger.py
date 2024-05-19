@@ -4,7 +4,7 @@ import os
 import logging
 from glob import glob
 
-def setup_logger(name, log_file, level=logging.INFO):
+def setup_logger(name, log_file: str, level=logging.INFO) -> logging.Logger:
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     handler = logging.FileHandler(log_file)
     handler.setFormatter(formatter)
@@ -16,7 +16,7 @@ def setup_logger(name, log_file, level=logging.INFO):
     return logger
 
 
-def cleanup_logs(log_dir, max_files=10):
+def cleanup_logs(log_dir: str, max_files=10) -> None:
     log_files = glob(os.path.join(log_dir, "*.log"))
     if len(log_files) > max_files:
         # Sort log files by creation time

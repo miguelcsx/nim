@@ -13,7 +13,7 @@ from utils.logger import setup_logger, cleanup_logs
 from utils.visualization import visualize_game_tree
 
 
-def parse_arguments():
+def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Play the Nim game.")
     parser.add_argument("--config", "-c", type=str, default="config.yaml", help="Configuration file")
     args, _ = parser.parse_known_args()
@@ -30,7 +30,7 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def load_config(config_file):
+def load_config(config_file: str) -> dict:
     with open(config_file, "r") as file:
         config = yaml.safe_load(file)
     
@@ -44,7 +44,7 @@ def load_config(config_file):
     return config
 
 
-def create_player(player_type, name, use_alpha_beta):
+def create_player(player_type: str, name: str, use_alpha_beta: bool) -> HumanPlayer | AIPlayer:
     if player_type == "human":
         return HumanPlayer(name)
     elif player_type == "ai":
@@ -53,7 +53,7 @@ def create_player(player_type, name, use_alpha_beta):
         raise ValueError(f"Invalid player type: {player_type}")
 
 
-def main():
+def main() -> None:
     args = parse_arguments()
 
     if args.config:

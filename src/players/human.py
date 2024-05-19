@@ -1,12 +1,9 @@
 # src/players/human.py
+from players.player import Player
 
-class HumanPlayer:
-    def __init__(self, name):
-        self.name = name
-        self.logger = None
-
-    def set_logger(self, logger):
-        self.logger = logger
+class HumanPlayer(Player):
+    def __init__(self, name: str) -> None:
+        super().__init__(name)
 
     def make_move(self, piles):
         while True:

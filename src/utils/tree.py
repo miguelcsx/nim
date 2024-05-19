@@ -2,20 +2,26 @@
 
 from functools import cache
 from collections import deque
+from players.player import Player
 
 class TreeNode:
-    def __init__(self, piles, move=None, player=None):
+    def __init__(
+            self,
+            piles: list[list[str]],
+            move: tuple[int, int] | None = None,
+            player: Player = None
+        ) -> None:
         self.piles = piles
         self.move = move
         self.player = player
         self.children = []
 
-def generate_tree(initial_piles):
+def generate_tree(initial_piles: list[list[str]]) -> TreeNode:
     root = TreeNode(initial_piles)
     generate_tree_bfs(root)
     return root
 
-def generate_tree_bfs(root):
+def generate_tree_bfs(root: TreeNode) -> None:
     queue = deque([(root, 1)])  # Store nodes along with their depth
     # BFS traversal to generate the game tree
     while queue:
@@ -27,7 +33,7 @@ def generate_tree_bfs(root):
         generate_children(node, player)
         queue.extend((child, depth + 1) for child in node.children)
 
-def generate_children(node, player):
+def generate_children(node: TreeNode, player: Player) -> None:
     piles = node.piles
     for pile_idx, pile in enumerate(piles):
         for num_objects in range(1, len(pile) + 1):
@@ -41,7 +47,7 @@ def generate_children(node, player):
 
 
 # Make a move on the piles
-def make_move(piles, pile_idx, num_objects):
+def make_move(piles: list[list[str]], pile_idx: int, num_objects: int) -> None:
     pile = piles[pile_idx]
     if num_objects < 1 or num_objects > len(pile):
         raise ValueError(f"Invalid number of objects: {num_objects}")
