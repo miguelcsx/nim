@@ -5,8 +5,8 @@ from collections import deque
 
 class Classic:
     def __init__(self, num_piles=None):
-        self.num_piles = random.randint(1, 3) if num_piles is None else num_piles
-        self.piles = [deque(['#'] * random.randint(1, 2)) for _ in range(self.num_piles)]
+        self.num_piles = random.randint(2, 4) if num_piles is None else num_piles
+        self.piles = [deque(['#'] * random.randint(1, 3)) for _ in range(self.num_piles)]
         self.logger = None
 
     def set_logger(self, logger):
