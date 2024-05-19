@@ -1,5 +1,6 @@
 # src/utils/tree.py
 
+from functools import cache
 from collections import deque
 
 class TreeNode:
@@ -14,7 +15,6 @@ def generate_tree(initial_piles):
     generate_tree_bfs(root)
     return root
 
-
 def generate_tree_bfs(root):
     queue = deque([(root, 1)])  # Store nodes along with their depth
     # BFS traversal to generate the game tree
@@ -26,7 +26,6 @@ def generate_tree_bfs(root):
             player = "Player 2"
         generate_children(node, player)
         queue.extend((child, depth + 1) for child in node.children)
-
 
 def generate_children(node, player):
     piles = node.piles
