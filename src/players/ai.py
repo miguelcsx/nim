@@ -7,8 +7,9 @@ from players.player import Player
 
 
 class AIPlayer(Player):
-    def __init__(self, name: str, use_alpha_beta: bool = False):
+    def __init__(self, name: str, game_mode: str, use_alpha_beta: bool = False):
         super().__init__(name)
+        self.game_mode = game_mode
         self.use_alpha_beta = use_alpha_beta
 
     def make_move(self, piles):
@@ -26,13 +27,8 @@ class AIPlayer(Player):
         return best_move
 
     def evaluate_state(self, piles: list[list[str]]) -> int:
-        total_objects = sum(len(pile) for pile in piles)
-        num_non_empty_piles = len([pile for pile in piles if pile])
-        if total_objects <= 1:
-            # If there is only one object left, the player who takes it loses
-            return -float('inf') if total_objects == 1 else float('inf')
-        return total_objects - num_non_empty_piles
-    
+        return self.game_mode.evaluate_state(piles)
+
     @cache
     def minimax(
         self,

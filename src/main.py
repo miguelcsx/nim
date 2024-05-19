@@ -8,10 +8,13 @@ from datetime import datetime
 from players.ai import AIPlayer
 from utils.tree import generate_tree
 from players.human import HumanPlayer
-from game.modes.classic import Classic
 from utils.logger import setup_logger, cleanup_logs
 from utils.visualization import visualize_game_tree
-
+from game.modes import (
+    mode,
+    classic,
+    misere
+)
 
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Play the Nim game.")
@@ -22,7 +25,7 @@ def parse_arguments() -> argparse.Namespace:
         return args
     
     parser.add_argument("--debug", "-d", action="store_true", default=False, help="Enable debug mode")
-    parser.add_argument("--mode", "-m", type=str, default="classic", help="Game mode: classic")
+    parser.add_argument("--mode", "-m", type=str, default="misere", help="Game mode: classic")
     parser.add_argument("--player1", "-p1", type=str, default="human", help="Player 1 type: human, ai")
     parser.add_argument("--player2", "-p2", type=str, default="ai", help="Player 2 type: human, ai")
     parser.add_argument("--num_piles", "-n", type=int, default=None, help="Number of piles")
@@ -36,7 +39,7 @@ def load_config(config_file: str) -> dict:
     
     # Set default values if not provided in the config file
     config.setdefault("debug", False)
-    config.setdefault("mode", "classic")
+    config.setdefault("mode", "misere")
     config.setdefault("player1", "human")
     config.setdefault("player2", "ai")
     config.setdefault("num_piles", None)
@@ -44,14 +47,28 @@ def load_config(config_file: str) -> dict:
     return config
 
 
-def create_player(player_type: str, name: str, use_alpha_beta: bool) -> HumanPlayer | AIPlayer:
+def create_player(
+    player_type: str,
+    name: str,
+    game_mode: mode.GameMode,
+    use_alpha_beta: bool
+) -> HumanPlayer | AIPlayer:
     if player_type == "human":
         return HumanPlayer(name)
     elif player_type == "ai":
-        return AIPlayer(name, use_alpha_beta)
+        return AIPlayer(name, game_mode, use_alpha_beta)
     else:
         raise ValueError(f"Invalid player type: {player_type}")
 
+
+def select_game_mode(mode: str, num_piles: int) -> mode.GameMode:
+    match mode:
+        case "classic":
+            return classic.ClassicMode(num_piles)
+        case "misere":
+            return misere.MisereMode(num_piles)
+        case _:
+            raise ValueError(f"Invalid game mode: {mode}")
 
 def main() -> None:
     args = parse_arguments()
@@ -74,10 +91,7 @@ def main() -> None:
         num_piles = args.num_piles
         use_alpha_beta = args.alpha_beta
 
-    if mode != "classic":
-        raise ValueError(f"Invalid game mode: {mode}")
-    
-    game = Classic(num_piles)
+    game = select_game_mode(mode, num_piles)
 
     initial_piles = game.get_piles()
 
@@ -93,8 +107,8 @@ def main() -> None:
         # Start the background thread
         background_thread.start()
 
-    player1 = create_player(player1, "Player 1", use_alpha_beta)
-    player2 = create_player(player2, "Player 2", use_alpha_beta)
+    player1 = create_player(player1, "Player 1", game, use_alpha_beta)
+    player2 = create_player(player2, "Player 2", game, use_alpha_beta)
 
 
     log_dir = ".logs"

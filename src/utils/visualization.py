@@ -19,9 +19,6 @@ def visualize_game_tree(root: TreeNode) -> None:
                 player_turn = "Initial State"
                 move_info = "Start"
             node_label = f"{player_turn}\n{move_info}"
-            if not node.children:
-                winner = get_winner(node.player)
-                node_label += f"\nWinner: {winner}"
             dot.node(node_name, node_label)
             dot.edge(parent_name, node_name)
             add_nodes_and_edges(node.children, node_name)
@@ -35,9 +32,3 @@ def visualize_game_tree(root: TreeNode) -> None:
     with open(os.path.join('.out/', 'game_tree.svg'), 'wb') as f:
         f.write(svg_bytes)
 
-
-def get_winner(player: str) -> str:
-    if player == "Player 1":
-        return "Player 2"
-    else:
-        return "Player 1"
